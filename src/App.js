@@ -1,5 +1,5 @@
-
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import React, {useRef} from 'react'
+import { Canvas, extend, useFrame, useThree } from '@react-three/fiber';
 import {
   CubeTextureLoader,
   CubeCamera,
@@ -9,20 +9,36 @@ import {
 } from "three";
 import './App.css';
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-xtend({ OrbitControls });
+extend({ OrbitControls });
+
+
+
+const CameraControls = () => {
+  // Get a reference to the Three.js Camera, and the canvas html element.
+  // We need these to setup the OrbitControls class.
+  // https://threejs.org/docs/#examples/en/controls/OrbitControls
+
+  const {
+    camera,
+    gl: { domElement }
+  } = useThree();
+
+  // Ref to the controls, so that we can update them on every frame using useFrame
+  const controls = useRef();
+  useFrame(() => controls.current.update());
+  return (
+    <orbitControls
+      ref={controls}
+      args={[camera, domElement]}
+      autoRotate={true}
+      enableZoom={false}
+    />
+  );
+};
 
 function App() {
 
-const CameraControls = () => {
-const {camera, gl :{domElement}}= useThree
-
-const controls= useRef()
-
-return(
-  <OrbitControls ref={controls} args={[camera, domElement]}
-  autoRotate={true} enable = {false}/>
-)
-}
+ 
 
 
 function SkyBox () {
@@ -36,9 +52,6 @@ function SkyBox () {
     "/4.jpg",
     "/5.jpg",
     "/6.jpg",
-  
-    
- 
   ]);
 
   scene.background= texture;
@@ -68,6 +81,7 @@ function SkyBox () {
 }
 return (
    <Canvas>
+    <CameraControls />
     <Sphere />
     <SkyBox />
    </Canvas>
